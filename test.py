@@ -1,6 +1,6 @@
 import socket
 from datetime import *
-HOST = '192.111.111.33'                 # Symbolic name meaning all available interfaces
+HOST = '192.168.6.1'                 # Symbolic name meaning all available interfaces
 PORT = 2010              # Arbitrary non-privileged port
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
@@ -12,12 +12,9 @@ while 1:
     data = conn.recv(1024)
     t1=datetime.now()
     t2 = t1.strftime('%Y-%m-%d %H:%M:%S %f')
-    print t2,' , ',data
+    print t2,': ','Receive: ',data[:10]
     log = file('log.txt', 'a+')
-    log.write(t2)
-    log.write(' : ')
-    log.write(data)
-    log.write('\n')
+    log.write(t2 + ':'+'Receive: ' + data[:10] + '\n')
     log.close()
     if not data: break
     conn.sendall(data)
