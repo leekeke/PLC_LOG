@@ -1,8 +1,8 @@
 from distutils.core import setup
 import py2exe
 setup(
-    version = "0.1",
-    description = "PLC_LOG_RECORD",
+    version = "1.3",
+    description = "PLC_LOG_Recorder",
     name = "PLC_LOG",
 
     # targets to build

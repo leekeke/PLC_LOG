@@ -1,11 +1,12 @@
 import socket
-HOST='192.111.111.1'
+HOST='192.168.1.123'
 PORT=2010
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.connect((HOST,PORT))
+
 while 1:
        cmd=raw_input("Please input cmd:")
        s.sendall(cmd)
-#       data=s.recv(1024)
-#       print data
+       data=s.recv(1024)
+       print data
 s.close()
