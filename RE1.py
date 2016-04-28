@@ -4,7 +4,7 @@
 import socket
 import threading
 
-host = '192.168.1.123'
+host = '192.111.111.33'
 port = 8805
 username = ''
 clients = []
