@@ -1,66 +1,69 @@
 import sys
 import socket
 from datetime import *
-#localIP = socket.gethostbyname(socket.gethostname()
-#print 'Please input Local IP: '
-print "Reading local IP..."
-#localIP = raw_input("Please input Local IP:")
-readIP = open("ip.txt","r")
-HOST = readIP.read(15)
-PORT = 2010
-print 'Local_IP:',HOST,', Port:',PORT
+import xlrd
+import string
 
-s = socket.socket()
-s.bind((HOST, PORT))
-s.listen(1)
-print('Waiting for Connecting...')
-conn, addr = s.accept()
-print 'Connected by', addr
-s.sendall('hello')
+def excel_rd():
+        excel_data = xlrd.open_workbook('par_data.xls')
+        table = excel_data.sheets()[0]
+        global localip,data_len
+        localip = table.cell(0,1).value
+        data_len = table.cell(1,1).value
+def tcp_con():
+        HOST = localip
+        PORT = 2010
+        print "Reading local IP..."
+        print 'Local_IP:',HOST,', Port:',PORT
+        global s
+        s = socket.socket( socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((HOST, PORT))
+        s.listen(1)
+        print('Waiting for Connecting...')
+        global conn
+        conn, addr = s.accept()
+        print 'Connected by', addr
 
-while 1:
-        data1 = conn.recv(1024)
-        data2 = data1.encode('hex')
-#        log_date = [int(i) for i in data1]
-#        data3 = int(data2,16)
-        year = data2[:4]
-        year1 = int(year,16)
-        month = data2[4:8]
-        month1 = int(month,16)
-        week = data2[8:12]
-        week1 = int(week,16)
-        day = data2[12:16]
-        day1 = int(day,16)
-        hour = data2[16:20]
-        hour1 = int(hour,16)
-        minute = data2[20:24]
-        minute1 = int(minute,16)
-        second = data2[24:28]
-        second1 = int(second,16)
-        milisecond = data2[28:32]
-        milisecond1 = int(milisecond,16)
-#        commandno = data2[32:40]
-#        commandno1 = int(commandno,16)
-        pvalue1 = data2[32:36]
-        pvalue2 = data2[36:40]
-        pvalue3 = data2[40:44]
-        pvalue4 = data2[44:48]
-        pvalue5 = data2[48:52]
-#        data4 = int(data2,16)`
-#        t1=datetime.now()
-#        t2 = t1.strftime('%Y-%m-%d %H:%M:%S %f')
-#        print 'Receive',data2
-        print """
-        %s-%s-%s %s:%s:%s:%s,Receive: %s,%s,%s,%s,%s
-         """ %(year1,month1,day1,hour1,minute1,second1,milisecond1,pvalue1,pvalue2,pvalue3,pvalue4,pvalue5)
-        #date2= conn.recv(1024).encode('hex')
-        log = file('log.txt', 'a+')
-#        log.write(t2 + ',Receive: ' + data2 + '\n')
-        log.write("""
-        %s-%s-%s %s:%s:%s:%s,Receive: %s,%s,%s,%s,%s
-         """ %(year1,month1,day1,hour1,minute1,second1,milisecond1,pvalue1,pvalue2,pvalue3,pvalue4,pvalue5) + '\n')
-        log.close()
-        if not data1 : break
-#        conn.sendall(data)
-conn.close()
+def intstr(x):
+        int(x,16)
+
+def coll_data():
+        while 1:
+                data1 = conn.recv(1024)
+                data2 = data1.encode('hex')
+                log_date = data2[:32]
+                x = len(log_date)
+                log_date1 = [int(log_date[i*4:(i+1)*4],16) for i in range(0,x/4) ]
+                year = log_date1[:1]
+                month = log_date1[1:2]
+                week = log_date1[2:3]
+                day = log_date1[3:4]
+                hour = log_date1[4:5]
+                minute = log_date1[5:6]
+                second = log_date1[6:7]
+                milisecond = log_date1[7:8]
+#                v = map(intstr,(data2))
+#                pvalue = v[32:int(data_len)+33]
+                pvalue1 = int(data2[32:36],16)
+                pvalue2 = int(data2[36:40],16)
+                pvalue3 = int(data2[40:44],16)
+                pvalue4 = int(data2[44:48],16)
+#                pvalue4 = int(data2[44:48],16)
+#                pvalue5 = int(data2[48:52],16)
+
+#                if pvalue3 == 1:
+#                        pvalue2 = pvalue2-65536
+
+                print "%s-%s-%s %s:%s:%s:%s,Receive: %s %s %s %s" %(year,month,day,hour,minute,second,milisecond,pvalue1,pvalue2,pvalue3,pvalue4)
+                log = file('log.txt', 'a+')
+                log.write("%s-%s-%s %s:%s:%s:%s,Receive: %s %s %s %s" %(year,month,day,hour,minute,second,milisecond,pvalue1,pvalue2,pvalue3,pvalue4) + '\n')
+                if not data1 : break
+        conn.close()
+
+if __name__ == '__main__':
+        excel_rd()
+        tcp_con()
+        coll_data()
+
+
 

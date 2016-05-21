@@ -1,24 +1,36 @@
-from PyQt4 import QtCore, QtGui
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 import threading
+import time
 
-class MyThread(QtCore.QThread):
-    updated = QtCore.pyqtSignal(str)
+exitFlag = 0
 
-    def run( self ):
-        # do some functionality
-        for i in range(10000):
-            self.updated.emit(str(i))
+class myThread (threading.Thread):   #继承父类threading.Thread
+    def __init__(self, threadID, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+    def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
+        print "Starting " + self.name
+        print_time(self.name, self.counter, 5)
+        print "Exiting " + self.name
 
-class Windows(QtGui.QWidget):
-    def __init__( self, parent = None ):
-        super(Windows, self).__init__(parent)
+def print_time(threadName, delay, counter):
+    while counter:
+        if exitFlag:
+            thread.exit()
+        time.sleep(delay)
+        print "%s: %s" % (threadName, time.ctime(time.time()))
+        counter -= 1
 
-        self._thread = MyThread(self)
-        self._thread.updated.connect(self.updateText)
+# 创建新线程
+thread1 = myThread(1, "Thread-1", 1)
+thread2 = myThread(2, "Thread-2", 2)
 
-        # create a line edit and a button
+# 开启线程
+thread1.start()
+thread2.start()
 
-        self._button.clicked.connect(self._thread.start)
-
-    def updateText( self, text ):
-        self.widget.setText(text)
+print "Exiting Main Thread"
