@@ -1,6 +1,6 @@
 import socket
-HOST = '192.111.111.201'
-PORT = 2011
+HOST = '172.18.19.192'
+PORT = 2010
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST,PORT))
 

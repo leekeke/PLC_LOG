@@ -2,6 +2,7 @@
 import socket                   #载入socket模块
 import time                     #载入读取系统时间模块
 import xlrd                     #载入excel模块
+import struct
 
 def excel_rd():                 #定义excel读取功能
         global localip,localport,data_len1,data_len2            #定义全局变量：IP，端口，起始字段，结束字段
@@ -27,6 +28,7 @@ def tcp_con():                  #定义tcp连接功能
         print 'Local Time: %s, Connected by %s' % (loctime,str(addr))
         log = file('log.txt', 'a+')
         log.write('Local Time: %s, Connected by %s' % (loctime,str(addr)) + '\n') #这里的Local Time是计算机时间
+        log.close()
 
 def coll_data():                #定义数据获取功能
         while 1:                #一直循环
@@ -34,15 +36,20 @@ def coll_data():                #定义数据获取功能
                 data16 = raw_data.encode('hex')     #转码为16进制
                 plc_time = data16[:32]           #PLC时间为数据前32个byte（前16个word）
                 log_data = data16[32:]              #byte32之后是日志数据
+                print log_data
+                log_data2 = struct.unpack('h',log_data)
+                print log_data2
                 x = len(plc_time)               #获取plc_time数据长度
                 z = [int(plc_time[i*4:(i+1)*4],16) for i in range(0,x/4) ]
                 #将PLC时间转码为16进制整数，并存储到列表z中，i的循环次数是0--x/4
                 p = [int(log_data[q*4:(q+1)*4],16) for q in range(data_len1-1,data_len2) ]
                 #将日志数据转码为16进制，并存储到列表p中
-                print 'PLC Time: %s-%s-%s %d:%d:%d:%d Receive: %r' %(z[0],z[1],z[3],z[4],z[5],z[6],z[7],p)
-                log1 = file('log.txt', 'a+')
-                log1.write('PLC Time: %s-%s-%s %d:%d:%d:%d, Receive: %r'
+                log = file('log.txt', 'a+')
+                log.write('PLC Time: %s-%s-%s %d:%d:%d:%d, Receive: %r'
                           %(z[0],z[1],z[3],z[4],z[5],z[6],z[7],p) + '\n')
+                log.close()
+                print 'PLC Time: %s-%s-%s %d:%d:%d:%d Receive: %r' %(z[0],z[1],z[3],z[4],z[5],z[6],z[7],p)
+
                 if not raw_data : break
         conn.close()
 

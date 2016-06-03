@@ -1,12 +1,28 @@
+# -*- coding: utf-8 -*-
 import socket
 import xlrd
+import struct
 
 def excel_rd():
         excel_data = xlrd.open_workbook('par_data.xls')
-        table = excel_data.sheets()[0]
-        global localip,data_len
-        localip = table.cell(0,1).value
-        data_len = table.cell(1,1).value
+        par_table = excel_data.sheets()[0]
+        data_table = excel_data.sheets()[1]
+        global localip,data_len,DB_data
+        localip = par_table.cell(0,1).value
+        data_len = par_table.cell(1,1).value
+        DB_RawData = data_table.col_values(1)
+        nrows = data_table.nrows
+        DB_data=[]
+        for i in range(1,nrows-1):
+            x = int(DB_RawData[i])
+            y= struct.pack('h',x)
+            z=y[::-1]
+            DB_data.append(z)
+        DB_data = ''.join(DB_data)
+        DB_data = str(DB_data)
+        print DB_data
+
+
 def tcp_con():
         HOST = localip
         PORT = 2010
@@ -22,17 +38,10 @@ def tcp_con():
         print 'Connected by', addr
 
 def coll_data():
-    while 1:
-       data1 = input("Please input cmd:")
-#       data2 = data1.encode('hex')
-       print data1
-#       print data2
-       cmd = str(data1)
-       print cmd
-       conn.send(cmd)
+    if conn:
+       data1= DB_data
+       conn.send(data1)
     conn.close()
-
-
 
 if __name__ == '__main__':
         excel_rd()
